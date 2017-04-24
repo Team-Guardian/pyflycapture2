@@ -387,7 +387,6 @@ cdef class Context:
             "min_num_image_notifications": config.minNumImageNotifications,
             "grab_timeout": config.grabTimeout,
             "grab_mode": config.grabMode,
-            "high_performance_retrieve_buffer": config.highPerformanceRetrieveBuffer,
             "isoch_bus_speed": config.isochBusSpeed,
             "async_bus_speed": config.asyncBusSpeed,
             "bandwidth_allocation": config.bandwidthAllocation,
@@ -408,7 +407,6 @@ cdef class Context:
         config.minNumImageNotifications = min_num_image_notifications
         config.grabTimeout = grab_timeout
         config.grabMode = grab_mode
-        config.highPerformanceRetrieveBuffer = high_performance_retrieve_buffer
         config.isochBusSpeed = isoch_bus_speed
         config.asyncBusSpeed = async_bus_speed
         config.bandwidthAllocation = bandwidth_allocation
@@ -642,3 +640,13 @@ cdef class Image:
 
     def get_format(self):
         return self.fmt or self.img.format
+
+    def save_image(self, filename, format):
+        cdef fc2Error r
+        cdef fc2ImageFileFormat _format
+        _format = format
+        pystring = filename.encode('utf-8')
+        cdef char* _filename = pystring
+        with nogil:
+            r = fc2SaveImage(&self.img, _filename, _format)
+        raise_error(r)
